@@ -22,7 +22,7 @@ local Get = function(Info:PT.PlayerInfo)
         if not Part.CanCollide and not Info.CanCollideDisabled then
             Part.CanCollide = true
         end
-        if workspace:GetPartsInPart(Part, Overlap) then
+        if #workspace:GetPartsInPart(Part, Overlap) >= 1 then
            return true
         end
     end
@@ -80,19 +80,30 @@ function Collision.Collide(InfoTable:PT.PlayerInfo, Delta:number)-- No typing he
     ]]
     local Pivot = Player.Character:GetPivot()
 
-    if (InfoTable.Humanoid.MoveDirection - InfoTable.LastMove).Magnitude >= .25 and InfoTable.Velocity.Magnitude >= 1 then
-        local Y = InfoTable.Velocity.Y
-        InfoTable.Velocity /= 3 -- Quick turning
-        InfoTable.Velocity += Vector3.new(0, Y - InfoTable.Velocity.Y, 0)
-    end    
-
     if InfoTable.Humanoid.MoveDirection.Magnitude > 0 then
+        if (InfoTable.Humanoid.MoveDirection - InfoTable.LastMove).Magnitude >= .825 and InfoTable.Velocity.Magnitude >= 1 then
+            print((InfoTable.Humanoid.MoveDirection - InfoTable.LastMove).Magnitude)
+            local Y = InfoTable.Velocity.Y
+            InfoTable.Velocity = InfoTable.Velocity:Lerp(Vector3.new(0,InfoTable.Velocity.Y,0) + InfoTable.Humanoid.MoveDirection * Clamp(InfoTable.WalkSpeed  * Delta * InfoTable.DeltaMulti, InfoTable.WalkSpeedMaximum), .65)  -- Quick turning
+            --InfoTable.Velocity += Vector3.new(0, Y - InfoTable.Velocity.Y, 0)
+        end  
         InfoTable.Velocity += InfoTable.Humanoid.MoveDirection * Clamp(InfoTable.WalkSpeed  * Delta * InfoTable.DeltaMulti, InfoTable.WalkSpeedMaximum)
     end
 
+    local TouchingRoof = Cast(Pivot.Position, Pivot.UpVector * (InfoTable.Height + .25))
     local OnGround = Cast(Pivot.Position, -Pivot.UpVector * (InfoTable.Height + .25))
 
-    if OnGround then -- Check for hit gorund
+	if TouchingRoof then
+		if InfoTable.Velocity.Y ~= 0 then
+			if InfoTable.Velocity.Y > .1 then
+				InfoTable.Velocity *= Vector3.new(1,-1,1)
+			end
+		else
+        	InfoTable.Velocity = Util.RemoveY(InfoTable.Velocity)
+		end
+    end
+
+    if OnGround then -- Check for hit ground
         -- Reset gravity
         
 		if InfoTable.Velocity.Y < 0 then
@@ -129,30 +140,31 @@ function Collision.Collide(InfoTable:PT.PlayerInfo, Delta:number)-- No typing he
     InfoTable.Grounded = OnGround and true or false
     
     InfoTable.Velocity += InfoTable.Gravity * Clamp(InfoTable.GravityAffectance * Delta * InfoTable.DeltaMulti)
-    InfoTable.VelocityHolder.Velocity = InfoTable.Velocity
-
     if InfoTable.Humanoid.MoveDirection.Magnitude <= 0 then
         InfoTable.Velocity = InfoTable.Velocity:Lerp(Vector3.new(0, InfoTable.Velocity.Y, 0), Clamp(Delta * InfoTable.DeltaMulti))
     end
 
+    
+    
     local X,Y,Z = Pivot:ToOrientation()
-
+    
     Pivot *= Pivot.Rotation:Inverse() -- Remove rotation
     
-    Pivot *= CFrame.Angles(0, math.rad(Y), Z) -- Remove X/Z rotation
-    Player.Character:PivotTo(Pivot + InfoTable.Velocity)
-
-    if Get(InfoTable) then
-        Player.Character:PivotTo(Pivot)
-    end
+	Pivot *= CFrame.Angles(0, math.rad(Y), 0) -- Remove X/Z rotation
+	
+	Player.Character:PivotTo(Pivot)
 
     InfoTable.LastMove = InfoTable.Humanoid.MoveDirection
-
-    local FinalPosition = Util.RemoveY(InfoTable.Velocity).Magnitude > 0 and Pivot.Position + Util.RemoveY(InfoTable.Velocity) or Pivot.Position + (Pivot.LookVector*3)
-
-    Player.Character:PivotTo(CFrame.lookAt(Pivot.Position, FinalPosition))
-
+    
+    local FinalPosition = Util.RemoveY(InfoTable.Velocity).Magnitude ~= 0 and Pivot.Position + Util.RemoveY(InfoTable.Velocity) or Pivot.Position + (Pivot.LookVector*3)
+    
+	if FinalPosition ~= Pivot.Position then
+		Player.Character:PivotTo(CFrame.lookAt(Pivot.Position, FinalPosition))
+	end
+	
+    InfoTable.VelocityHolder.Velocity = InfoTable.Velocity
+    
     return {Success = Success or true, Error = Error or ""}, InfoTable
 end
 
-return Collision    
+return Collision

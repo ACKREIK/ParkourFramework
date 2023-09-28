@@ -97,14 +97,9 @@ function CharacterAdded(NewCharacter)
     Main.VelocityHolder = Instance.new("BodyVelocity", Main.Primary)
 	
     Character = NewCharacter
-    NewCharacter:PivotTo(CFrame.new(0,0,0))
+    NewCharacter:PivotTo(CFrame.new(0,10,0))
 
-    if Main.Humanoid and Main.VelocityHolder then
-        Main.VelocityHolder.Name = "MainVelocity"
-        Main.VelocityHolder.MaxForce = Vector3.new(Inf, Inf, Inf)
-        Main.VelocityHolder.P = 500000
-        Main.VelocityHolder.Velocity = Vector3.new()
-
+    if Main.Humanoid and Main.VelocityHolder and Main.Primary then
         for Index, Part:Part in pairs(NewCharacter:GetDescendants()) do
             if Part:IsA("BasePart") then
                 Part.CanCollide = false
@@ -125,9 +120,16 @@ function CharacterAdded(NewCharacter)
         end
         
         Main.Humanoid.WalkSpeed = 0
+
+        Main.VelocityHolder.Name = "MainVelocity"
+        Main.VelocityHolder.P = 500000
+        
+        local Attachment = Instance.new("Attachment", Main.Primary)
+         
+        Main.VelocityHolder.Velocity = Vector3.new()
+        Main.VelocityHolder.MaxForce = Vector3.new(Inf, Inf, Inf)
         Main.Humanoid.JumpPower = 0
     end
-
 end
 CharacterAdded(Player.Character)
 Player.CharacterAdded:Connect(CharacterAdded)

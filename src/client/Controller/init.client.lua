@@ -1,0 +1,2 @@
+-- Globals
+local self = {}

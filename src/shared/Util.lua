@@ -72,5 +72,9 @@ Util.ToGlobal = function(Init:CFrame|Part, Vector:Vector3)
 	end
 end
 
+Util.RemoveY = function(Vector:Vector3)
+    return Vector - Vector3.new(0, Vector.Y, 0)
+end
+
 
 return Util

@@ -1,36 +1,39 @@
 {
   "name": "Parkour Framework",
-  "servePlaceIds": [14902669834],
+  "servePlaceIds": [
+    14902669834
+  ],
   "tree": {
     "$className": "DataModel",
-
     "ReplicatedStorage": {
       "Shared": {
         "$path": "src/shared"
       }
     },
-
     "ServerScriptService": {
       "Server": {
         "$path": "src/server"
       }
     },
-
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
           "$path": "src/client"
         }
+      },
+      "StarterCharacter": {
+        "$path": "src/StarterPlayer/StarterCharacter.rbxmx"
       }
     },
-
     "Workspace": {
+      "Terrain": {
+        "$className": "Terrain"
+      },
       "$properties": {
         "FilteringEnabled": true
       },
       "$path": "src/workspace"
     },
-
     "Lighting": {
       "$properties": {
         "Ambient": [
@@ -44,7 +47,6 @@
         "Technology": "Voxel"
       }
     },
-
     "SoundService": {
       "$properties": {
         "RespectFilteringEnabled": true

@@ -52,5 +52,25 @@ Util.TableToString = function(Table:{any}, CurrentString:string?, Depth:number)
     return CurrentString
 end
 
+Util.ToLocal = function(Init:CFrame|Part, Vector:Vector3)
+	if typeof(Init) == "CFrame" then
+		return Init:VectorToObjectSpace(Vector)
+	elseif typeof(Init) == "Instance" and Init:IsA("BasePart") then
+		return Init.CFrame:VectorToObjectSpace(Vector)
+	else
+		return Vector
+	end
+end
+
+Util.ToGlobal = function(Init:CFrame|Part, Vector:Vector3)
+	if typeof(Init) == "CFrame" then
+		return Init:VectorToWorldSpace(Vector)
+	elseif typeof(Init) == "Instance" and Init:IsA("BasePart") then
+		return Init.CFrame:VectorToWorldSpace(Vector)
+	else
+		return Vector
+	end
+end
+
 
 return Util
